@@ -1,0 +1,36 @@
+# 일괄 전처리 사용자 함수(null 처리, 불필요 칼럼 삭제, 레이블 인코딩) 
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+
+# Null 처리 함수
+# Age(평균), Cabin('N'), Embarked('N'), Fare(0)
+def fillna(df):
+    df['Age'].fillna(df['Age'].mean(),inplace=True)
+    df['Cabin'].fillna('N',inplace=True)
+    df['Embarked'].fillna('N',inplace=True)
+    df['Fare'].fillna(0,inplace=True)
+    return df
+
+# 머신러닝 알고리즘에 불필요한 속성 제거
+# PassengerId, Name, Ticket(티켓번호)
+def drop_features(df):
+    df.drop(['PassengerId','Name','Ticket'],axis=1,inplace=True)
+    return df
+
+# 레이블 인코딩 수행.
+# Cabin(선실번호 첫문자만 추출 후 인코딩), Sex(성별), Embarked(중간 정착 항구)
+def format_features(df):
+    df['Cabin'] = df['Cabin'].str[:1]
+    features = ['Cabin','Sex','Embarked']
+    for feature in features:
+        le = LabelEncoder()
+        le = le.fit(df[feature])
+        df[feature] = le.transform(df[feature])
+    return df
+
+# 앞에서 설정한 Data Preprocessing 함수 호출
+def transform_features(df):
+    df = fillna(df)
+    df = drop_features(df)
+    df = format_features(df)
+    return df
